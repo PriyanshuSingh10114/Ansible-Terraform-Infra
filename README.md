@@ -20,22 +20,11 @@ An enterprise-ready, modular, secure, and cost-optimized Infrastructure as Code 
 
 ---
 
-## 1. Learning Objectives
-
-By using and studying this project, you will master:
-- **Modular Terraform Development**: Writing reusable, parameterized IaC modules (`vpc`, `subnets`, `security_group`, `iam`, `ec2`, `s3`, `cloudwatch`, `remote_state`).
-- **Configuration Management**: Automating Linux OS hardening, package management, security updates, Nginx reverse proxies, and system users via Ansible roles.
-- **Student Cost Optimization**: Building production-inspired cloud architectures within AWS Free Tier limits ($0/month baseline) without compromising modularity.
-- **Container Orchestration**: Running microservices and complete telemetry stacks (Prometheus, Grafana, Node Exporter, cAdvisor) using Docker Compose.
-- **Continuous Integration**: Validating Terraform code formatting, module syntax, and Ansible playbooks automatically via GitHub Actions workflows.
-
----
-
-## 2. Architecture Diagram & Explanation
+## 1. Project Architecture
 
 ```mermaid
 graph TD
-    Client[Internet Client / Browser] -->|HTTP Port 80| Nginx[Nginx Reverse Proxy]
+    Client[Internet Client / Admin] -->|HTTP Port 80| Nginx[Nginx Reverse Proxy]
     Client -->|SSH Port 22| EC2[Ubuntu EC2 Instance]
     Client -->|HTTP Port 3000| Grafana[Grafana Dashboard]
     Client -->|HTTP Port 9090| Prom[Prometheus UI]
@@ -45,13 +34,13 @@ graph TD
             IGW[Internet Gateway] <--> RouteTable[Public Route Table]
             RouteTable <--> EC2
             
-            subgraph EC2 Instance Services (Docker Compose Stack)
+            subgraph Container Engine (Docker Compose)
                 Nginx -->|Proxy Pass 127.0.0.1:3000| NodeApp[Node.js Express App]
                 NodeExporter[Node Exporter :9100] --> Prom
                 cAdvisor[cAdvisor :8080] --> Prom
                 NodeApp -->|/metrics| Prom
                 Prom --> Grafana
-                CWAgent[CloudWatch Agent] -->|Push System & Nginx Logs| CloudWatch[AWS CloudWatch Logs]
+                CWAgent[CloudWatch Agent] -->|Push Logs| CloudWatch[AWS CloudWatch Logs]
             end
         end
         SG[Security Group] --> EC2
@@ -59,56 +48,58 @@ graph TD
     end
 
     EC2 -->|S3 API Read/Write| S3Bucket[App S3 Bucket]
-    TFLocal[Developer Workstation / CI] -->|S3 State + DynamoDB Lock| TFState[Terraform Remote Backend]
+    Bootstrap[Bootstrap Remote State] -->|S3 State + Lockfile| S3State[S3 Remote State Bucket]
 ```
-
-### Architecture Components
-1. **AWS VPC & Network**: Custom VPC (`10.0.0.0/16`) with DNS support, single public subnet (`10.0.1.0/24`), Internet Gateway, and Route Table for public internet connectivity.
-2. **Compute & Security**: Single `t3.micro` Ubuntu 22.04 LTS EC2 instance secured with least-privilege Security Groups and IAM Role (with SSM Core & CloudWatch Agent policies).
-3. **Application Tier**: Dockerized Node.js web application running inside Docker Compose, proxied by Nginx on Port 80 with health checks (`/health`).
-4. **Monitoring Stack**: Prometheus, Grafana, Node Exporter, cAdvisor, and AWS CloudWatch Agent collecting CPU, Memory, Disk, Network, and Container metrics.
-5. **Terraform Remote State**: S3 Bucket with server-side encryption & versioning + DynamoDB table for state locking.
 
 ---
 
-## 3. Student Cost Safety & AWS Budget Analysis
+## 2. Student Cost Safety & AWS Budget Analysis
 
 | AWS Resource | Included | Free Tier Limit | Est. Monthly Cost | Cost Reduction Rationale |
 | :--- | :---: | :--- | :--- | :--- |
 | **VPC & Internet Gateway** | Yes | Always Free | **$0.00** | Core networking zero hourly charge |
 | **1x Public Subnet** | Yes | Always Free | **$0.00** | Direct route to IGW |
-| **1x EC2 Instance (t3.micro)** | Yes | 750 hours/month | **$0.00** | Fits entirely inside 12-month AWS Free Tier |
-| **S3 Bucket & DynamoDB Table** | Yes | 5GB S3 + 25 WCU DynamoDB | **$0.00** | S3 & DynamoDB PAY_PER_REQUEST free tier |
-| **CloudWatch Log Group** | Yes | 5GB Log Ingestion free | **$0.00** | Set to 7-day log retention |
-| **ALB / NAT Gateway / RDS** | **Excluded** | Non-Free Tier | **Saved ~$70+/mo** | Skipped per student budget safety rules |
+| **1x EC2 Instance (t3.micro)** | Yes | 750 hours/month | **$0.00** | Fits entirely inside 12-Month AWS Free Tier |
+| **S3 Buckets (App + State)** | Yes | 5GB S3 Storage free | **$0.00** | Native S3 lockfiles (`use_lockfile = true`), no DynamoDB fees |
+| **CloudWatch Log Group** | Yes | 5GB Log Ingestion free | **$0.00** | Set to 7-day retention |
+| **ALB / NAT Gateway / RDS** | **Excluded** | Non-Free Tier | **Saved ~$70+/mo** | Excluded per student budget safety rules |
 
 ---
 
-## 4. Repository Structure
+## 3. Directory Structure
 
 ```text
 aws-terraform-ansible-infra/
-├── .github/workflows/ci-cd.yml          # GitHub Actions workflow
-├── app/                                 # Node.js app & Docker Compose
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   ├── package.json
-│   ├── server.js
-│   └── nginx.conf
-├── monitoring/                          # Observability stack config
-│   ├── docker-compose.yml
-│   ├── prometheus.yml
-│   ├── amazon-cloudwatch-agent.json
-│   └── dashboards/system-overview.json
-├── ansible/                             # Configuration management
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml                   # GitHub Actions pipeline
+├── bootstrap/
+│   └── remote-state/                   # Terraform Remote State S3 Bootstrapping
+│       ├── versions.tf
+│       ├── providers.tf
+│       ├── variables.tf
+│       ├── terraform.tfvars
+│       ├── main.tf
+│       └── outputs.tf
+├── terraform/
+│   ├── modules/                        # Reusable Single-Responsibility Modules
+│   │   ├── vpc/
+│   │   ├── subnets/
+│   │   ├── internet_gateway/
+│   │   ├── route_tables/
+│   │   ├── security_group/
+│   │   ├── iam/
+│   │   ├── ec2/
+│   │   ├── s3/                         # Reusable S3 module
+│   │   └── cloudwatch/
+│   └── environments/                   # Infrastructure Environments
+│       ├── dev/
+│       └── prod/
+├── ansible/                            # Configuration Management
 │   ├── ansible.cfg
 │   ├── site.yml
 │   ├── group_vars/
-│   │   ├── all.yml
-│   │   └── webservers.yml
 │   ├── inventories/
-│   │   ├── dev/hosts.yml
-│   │   └── prod/hosts.yml
 │   └── roles/
 │       ├── common/
 │       ├── security/
@@ -118,117 +109,84 @@ aws-terraform-ansible-infra/
 │       ├── application/
 │       ├── monitoring/
 │       └── backup/
-├── terraform/                           # Infrastructure as Code
-│   ├── modules/                         # Reusable Terraform modules
-│   │   ├── vpc/
-│   │   ├── subnets/
-│   │   ├── internet_gateway/
-│   │   ├── nat_gateway/
-│   │   ├── route_tables/
-│   │   ├── security_group/
-│   │   ├── iam/
-│   │   ├── ec2/
-│   │   ├── alb/
-│   │   ├── autoscaling/
-│   │   ├── launch_template/
-│   │   ├── rds/
-│   │   ├── s3/
-│   │   ├── cloudwatch/
-│   │   └── remote_state/
-│   └── environments/                    # Environment deployments
-│       ├── dev/
-│       └── prod/
-├── .gitignore
-└── README.md                            # Master project documentation
+├── app/                                # Dockerized Node.js Web Service
+├── monitoring/                         # Observability Stack (Prometheus/Grafana)
+├── scripts/                            # Operational Helper Scripts
+│   ├── install.sh
+│   ├── deploy.sh
+│   ├── destroy.sh
+│   ├── validate.sh
+│   └── cleanup.sh
+├── Makefile                            # One-command execution targets
+└── README.md
 ```
 
 ---
 
-## 5. Execution Guide
+## 4. One-Command Execution Guide
 
 ### Prerequisites
-- Install [Terraform 1.6+](https://developer.hashicorp.com/terraform/downloads)
-- Install [Ansible 2.15+](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
-- AWS CLI configured with active credentials (`aws configure`)
+1. Linux/macOS environment or WSL2 on Windows.
+2. Active AWS Account credentials (`aws configure`).
 
-### Step 1: Provision Infrastructure with Terraform
+### Setup & One-Command Deployment
 ```bash
-# Navigate to dev environment
-cd terraform/environments/dev
+# 1. Install all prerequisites (AWS CLI, Terraform, Ansible, Docker)
+make install   # or ./scripts/install.sh
 
-# Copy example variables
-cp terraform.tfvars.example terraform.tfvars
+# 2. Bootstrap Terraform Remote State S3 Bucket
+make bootstrap
 
-# Initialize Terraform modules
-terraform init
+# 3. Validate system code and Ansible syntax
+make validate
 
-# Validate configuration syntax
-terraform validate
+# 4. Deploy full infrastructure and application stack
+make deploy ENV=dev
 
-# Review execution plan
-terraform plan
+# 5. Destroy infrastructure when finished to maintain $0 costs
+make destroy ENV=dev
 
-# Apply infrastructure creation
-terraform apply -auto-approve
+# 6. Clean temporary build caches
+make clean
 ```
 
-### Step 2: Deploy & Configure Server with Ansible
-```bash
-# Navigate to ansible directory
-cd ../../../ansible
+---
 
-# Verify inventory connectivity
-ansible all -m ping -i inventories/dev/hosts.yml
+## 5. Available Makefile Targets
 
-# Execute master playbook
-ansible-playbook -i inventories/dev/hosts.yml site.yml
-```
+| Target | Description |
+| :--- | :--- |
+| `make bootstrap` | Provision S3 Remote State bucket via bootstrap module |
+| `make init` | Run `terraform init` for environment (`ENV=dev\|prod`) |
+| `make fmt` | Format all Terraform code recursively |
+| `make validate` | Validate Terraform syntax and Ansible playbooks |
+| `make plan` | Preview infrastructure changes (`ENV=dev\|prod`) |
+| `make apply` | Apply infrastructure changes (`ENV=dev\|prod`) |
+| `make deploy` | Run end-to-end Terraform apply and Ansible playbook deployment |
+| `make destroy` | Destroy target infrastructure (`ENV=dev\|prod`) |
+| `make clean` | Clean local `.terraform` caches and temporary log files |
 
 ---
 
 ## 6. Verification Steps
 
-### AWS Console Verification
-1. **EC2 Console**: Verify that 1 `dev-bastion-host` instance is running in public subnet `10.0.1.0/24` with an attached Elastic IP.
-2. **VPC Console**: Verify `dev-vpc` (`10.0.0.0/16`) has 1 Internet Gateway attached and route table pointing `0.0.0.0/0` to IGW.
-3. **CloudWatch Console**: Navigate to Log Groups and locate `/aws/ec2/dev-system-logs`.
-4. **S3 Console**: Confirm bucket `aws-dev-app-assets-storage-unique-12345` is created with encryption enabled.
-
-### Live Application & Dashboard Verification
-- **Web Application**: Open `http://<EC2_PUBLIC_IP>/` -> Returns JSON status response.
-- **Application Health Check**: Open `http://<EC2_PUBLIC_IP>/health` -> Returns `{"status":"UP"}`.
-- **Grafana Observability Dashboard**: Open `http://<EC2_PUBLIC_IP>:3000` (Login: `admin` / `adminpass`).
-- **Prometheus Metrics Target**: Open `http://<EC2_PUBLIC_IP>:9090/targets` -> Verify Node Exporter and cAdvisor targets are `UP`.
+1. **Web Service**: Access `http://<EC2_PUBLIC_IP>/` -> JSON status output.
+2. **Health Check**: Access `http://<EC2_PUBLIC_IP>/health` -> `{"status":"UP"}`.
+3. **Grafana Dashboards**: Access `http://<EC2_PUBLIC_IP>:3000` (User: `admin` / Password: `adminpass`).
+4. **Prometheus UI**: Access `http://<EC2_PUBLIC_IP>:9090/targets` -> Verify targets are `UP`.
 
 ---
 
-## 7. Common Errors & Troubleshooting
+## 7. Troubleshooting Guide
 
-| Symptom | Cause | Solution |
+| Issue | Root Cause | Solution |
 | :--- | :--- | :--- |
-| `Error: No matching AMI found` | Invalid AMI ID for region | Update `ami_id` in `terraform.tfvars` with current Ubuntu 22.04 AMI for your AWS region. |
-| `Permission denied (publickey)` | SSH key mismatch | Ensure your local SSH public key matches `ssh_key_name` passed to EC2 module. |
-| `AccessDenied on S3 Backend` | Missing S3/DynamoDB IAM permissions | Run `aws sts get-caller-identity` to check IAM identity permissions. |
-| `Docker Compose failed to start` | User not in `docker` group | Re-run Ansible role `docker` or execute `sudo usermod -aG docker ubuntu` on server. |
+| `BucketAlreadyExists` | Bucket name collision | Change `state_bucket_name` in `bootstrap/remote-state/terraform.tfvars`. |
+| `Host key verification failed` | First SSH connect | `ansible.cfg` sets `host_key_checking = False` by default. |
+| `Permission denied` on scripts | Missing execution bit | Run `chmod +x scripts/*.sh`. |
 
 ---
 
-## 8. Interview Questions & Answers
+## 8. License & Acknowledgments
 
-### Q1: Why use modular Terraform structure with `environments/` and `modules/`?
-**Answer**: Separating infrastructure definitions into reusable modules (`modules/`) and environment instantiations (`environments/dev`, `environments/prod`) promotes DRY (Don't Repeat Yourself) code, enforces standardization across teams, isolates state files, and prevents blast radius during updates.
-
-### Q2: How does state locking prevent concurrent modification race conditions?
-**Answer**: Terraform uses Amazon DynamoDB table hash keys (`LockID`) during operations (`plan`, `apply`, `destroy`). When an execution starts, Terraform writes an item into DynamoDB. Subsequent runs detect the active lock and halt, avoiding state file corruption.
-
-### Q3: Why is Nginx placed in front of Node.js app containers?
-**Answer**: Nginx handles client connection pooling, static asset caching, request buffering, rate limiting, and SSL/TLS termination efficiently before forwarding traffic to application runtimes over localhost.
-
----
-
-## 9. Recommended Slash Commands
-
-- Use `/goal` when you want the agent to execute long-running validation tasks thoroughly.
-- Use `/schedule` to automate state monitoring timers.
-- Use `/grill-me` for interactive design alignment.
-- Use `/learn` to save repository-specific patterns into agent memory.
+Licensed under the MIT License. Built for educational and portfolio demonstration purposes.

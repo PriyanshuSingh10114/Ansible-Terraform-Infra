@@ -1,4 +1,4 @@
-name: AWS Infrastructure & Ansible CI/CD Pipeline
+name: CI/CD Pipeline - Infrastructure & Configuration Validation
 
 on:
   push:
@@ -7,12 +7,12 @@ on:
     branches: [ main, master ]
 
 jobs:
-  terraform-lint-and-validate:
-    name: Terraform Lint & Validate
+  terraform-validate:
+    name: Terraform Format & Validation
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Setup Terraform
@@ -20,8 +20,14 @@ jobs:
         with:
           terraform_version: 1.6.0
 
-      - name: Check Terraform Formatting
+      - name: Check Terraform Code Formatting
         run: terraform fmt -check -recursive
+
+      - name: Validate Bootstrap Remote State
+        run: |
+          cd bootstrap/remote-state
+          terraform init -backend=false
+          terraform validate
 
       - name: Validate Dev Environment
         run: |
@@ -36,11 +42,11 @@ jobs:
           terraform validate
 
   ansible-lint:
-    name: Ansible Syntax Check
+    name: Ansible & Yaml Syntax Check
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -48,10 +54,15 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Ansible
-        run: pip install ansible community.general community.docker
+      - name: Install Ansible & Linters
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible community.general community.docker yamllint markdownlint-cli || pip install ansible community.general community.docker yamllint
 
-      - name: Ansible Playbook Syntax Check
+      - name: Run Yaml Lint Check
+        run: yamllint -d "{extends: default, rules: {line-length: disable}}" . || true
+
+      - name: Ansible Playbook Syntax Verification
         run: |
           cd ansible
           ansible-playbook -i inventories/dev/hosts.yml site.yml --syntax-check

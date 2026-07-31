@@ -1,7 +1,12 @@
 variable "cidr_block" {
-  description = "The CIDR block for the VPC"
+  description = "The IPv4 CIDR block for the VPC"
   type        = string
   default     = "10.0.0.0/16"
+
+  validation {
+    condition     = can(cidrhost(var.cidr_block, 0))
+    error_message = "The cidr_block variable must be a valid IPv4 CIDR notation string."
+  }
 }
 
 variable "enable_dns_hostnames" {

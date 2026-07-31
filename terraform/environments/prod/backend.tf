@@ -1,9 +1,12 @@
+# Terraform S3 Remote State Backend Configuration for Production
+# Uses S3 native S3 lockfiles (use_lockfile = true) available in Terraform 1.10+ & S3 backends without DynamoDB
+
 terraform {
   backend "s3" {
-    bucket         = "aws-infra-prod-tfstate-bucket"
-    key            = "prod/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "aws-infra-prod-tflocks"
-    encrypt        = true
+    bucket       = "aws-infra-remote-tfstate-bucket-unique"
+    key          = "prod/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
   }
 }
