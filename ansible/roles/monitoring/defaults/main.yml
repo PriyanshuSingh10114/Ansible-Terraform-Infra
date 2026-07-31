@@ -1,0 +1,4 @@
+---
+node_exporter_port: 9100
+prometheus_port: 9090
+cloudwatch_agent_config_path: /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json

@@ -1,0 +1,30 @@
+---
+- name: Create application target directory
+  ansible.builtin.file:
+    path: "{{ app_directory }}"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Deploy application source code
+  ansible.builtin.copy:
+    src: ../../../app/
+    dest: "{{ app_directory }}"
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+- name: Deploy Docker Compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ app_directory }}/docker-compose.yml"
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+- name: Launch application stack using Docker Compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_directory }}"
+    state: present
+    build: always

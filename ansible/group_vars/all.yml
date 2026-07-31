@@ -1,0 +1,8 @@
+---
+aws_region: us-east-1
+timezone: UTC
+environment: dev
+admin_email: admin@example.com
+prometheus_version: "2.47.0"
+node_exporter_version: "1.6.1"
+grafana_version: "10.1.2"

@@ -1,0 +1,6 @@
+---
+sys_users:
+  - name: devops
+    groups: "sudo,docker"
+    shell: "/bin/bash"
+    pubkey: ""

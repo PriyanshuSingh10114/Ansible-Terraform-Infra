@@ -1,0 +1,5 @@
+---
+backup_dir: /var/backups/app
+backup_s3_bucket: "{{ app_bucket_name | default('aws-dev-app-assets-storage-unique-12345') }}"
+backup_cron_hour: "2"
+backup_cron_minute: "0"

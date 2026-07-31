@@ -1,0 +1,25 @@
+---
+- name: Create local backup storage directory
+  ansible.builtin.file:
+    path: "{{ backup_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Deploy automated backup script
+  ansible.builtin.template:
+    src: backup.sh.j2
+    dest: /usr/local/bin/backup_app.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Configure nightly cron job for automated backups
+  ansible.builtin.cron:
+    name: "Automated daily S3 backup"
+    hour: "{{ backup_cron_hour }}"
+    minute: "{{ backup_cron_minute }}"
+    job: "/usr/local/bin/backup_app.sh >> /var/log/backup.log 2>&1"
+    user: root
+    state: present

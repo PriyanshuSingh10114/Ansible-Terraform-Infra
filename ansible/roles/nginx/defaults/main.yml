@@ -1,0 +1,4 @@
+---
+nginx_port: 80
+app_proxy_port: 3000
+server_name: "_"

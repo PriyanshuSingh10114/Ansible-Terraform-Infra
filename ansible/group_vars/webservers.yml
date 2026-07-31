@@ -1,0 +1,6 @@
+---
+app_port: 3000
+nginx_http_port: 80
+app_name: production-web-app
+app_container_image: "app-node-web:latest"
+docker_compose_dir: /opt/app

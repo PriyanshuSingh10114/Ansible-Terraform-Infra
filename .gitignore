@@ -1,0 +1,24 @@
+# Terraform local state and overrides
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ansible vault and temporary files
+*.retry
+*.log
+.ansible/
+vault_pass.txt
+
+# Node modules & OS noise
+node_modules/
+npm-debug.log
+.DS_Store
+Thumbs.db

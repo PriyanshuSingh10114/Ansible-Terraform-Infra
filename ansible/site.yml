@@ -1,0 +1,28 @@
+---
+- name: Apply Common Base System Configuration & Hardening
+  hosts: all
+  gather_facts: true
+  roles:
+    - common
+    - security
+    - users
+
+- name: Provision Container Engine & Application Infrastructure
+  hosts: webservers
+  gather_facts: true
+  roles:
+    - docker
+    - nginx
+    - application
+
+- name: Configure Telemetry Monitoring & Observability
+  hosts: all
+  gather_facts: true
+  roles:
+    - monitoring
+
+- name: Configure Automated Backup Systems
+  hosts: webservers
+  gather_facts: true
+  roles:
+    - backup

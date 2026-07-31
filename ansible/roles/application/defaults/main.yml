@@ -1,0 +1,5 @@
+---
+app_directory: /opt/app
+app_container_name: web_application
+app_image: node:18-alpine
+app_environment_port: 3000
