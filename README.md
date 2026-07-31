@@ -11,6 +11,15 @@ An enterprise-ready, modular, secure, and cost-optimized Infrastructure as Code 
 
 ---
 
+## Author & Maintainer
+
+**Priyanshu Singh**
+- **GitHub**: [@PriyanshuSingh10114](https://github.com/PriyanshuSingh10114)
+- **Repository**: [PriyanshuSingh10114/Ansible-Terraform-Infra](https://github.com/PriyanshuSingh10114/Ansible-Terraform-Infra)
+- **Role**: Cloud & DevOps Engineer
+
+---
+
 ## 1. Learning Objectives
 
 By using and studying this project, you will master:
@@ -107,16 +116,22 @@ aws-terraform-ansible-infra/
 │       ├── docker/
 │       ├── nginx/
 │       ├── application/
-│       └── monitoring/
+│       ├── monitoring/
+│       └── backup/
 ├── terraform/                           # Infrastructure as Code
 │   ├── modules/                         # Reusable Terraform modules
 │   │   ├── vpc/
 │   │   ├── subnets/
 │   │   ├── internet_gateway/
+│   │   ├── nat_gateway/
 │   │   ├── route_tables/
 │   │   ├── security_group/
 │   │   ├── iam/
 │   │   ├── ec2/
+│   │   ├── alb/
+│   │   ├── autoscaling/
+│   │   ├── launch_template/
+│   │   ├── rds/
 │   │   ├── s3/
 │   │   ├── cloudwatch/
 │   │   └── remote_state/
