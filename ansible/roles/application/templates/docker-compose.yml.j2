@@ -10,7 +10,7 @@ services:
     ports:
       - "{{ app_environment_port }}:3000"
     environment:
-      - NODE_ENV={{ environment }}
+      - NODE_ENV={{ deployment_environment }}
       - PORT=3000
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]

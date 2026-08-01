@@ -1,0 +1,14 @@
+---
+all:
+  children:
+    webservers:
+      hosts:
+        web-dev-01:
+          ansible_host: 10.0.10.15
+        web-dev-02:
+          ansible_host: 10.0.20.15
+    bastion:
+      hosts:
+        bastion-dev:
+          ansible_host: 54.210.10.5
+          ansible_user: ubuntu

@@ -7,5 +7,5 @@ variable "aws_region" {
 variable "state_bucket_name" {
   description = "Globally unique S3 bucket for Terraform remote state"
   type        = string
-  default     = "priyanshu-ansible-terraform-tfstate-2026"
+  default     = "aws-infra-remote-tfstate-bucket-unique"
 }

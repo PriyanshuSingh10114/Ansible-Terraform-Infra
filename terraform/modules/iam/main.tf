@@ -55,7 +55,7 @@ resource "aws_iam_policy" "s3_access" {
         Resource = var.app_bucket_arn != "*" ? [
           var.app_bucket_arn,
           "${var.app_bucket_arn}/*"
-        ] : [
+          ] : [
           "arn:aws:s3:::*",
           "arn:aws:s3:::*/*"
         ]

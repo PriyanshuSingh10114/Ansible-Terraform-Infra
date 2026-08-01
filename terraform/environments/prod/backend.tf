@@ -3,7 +3,7 @@
 
 terraform {
   backend "s3" {
-    bucket       = "priyanshu-ansible-terraform-tfstate-2026"
+    bucket       = "aws-infra-remote-tfstate-bucket-unique"
     key          = "prod/terraform.tfstate"
     region       = "ap-south-1"
     encrypt      = true
