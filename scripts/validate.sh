@@ -40,6 +40,14 @@ else
   echo "[WARNING] Ansible CLI not found. Skipping Ansible syntax check."
 fi
 
+# 5. Shell Script Syntax Check
+echo "[INFO] Validating Shell Scripts Syntax..."
+for script in scripts/*.sh; do
+  if [ -f "$script" ]; then
+    bash -n "$script"
+  fi
+done
+
 echo "======================================================"
 echo " [SUCCESS] All validation checks passed successfully!"
 echo "======================================================"

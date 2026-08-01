@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "us-east-1"
+  default     = "ap-south-1"
 }
 
 variable "environment" {
@@ -31,7 +31,7 @@ variable "private_subnet_cidrs" {
 variable "availability_zones" {
   description = "Availability Zones"
   type        = list(string)
-  default     = ["us-east-1a", "us-east-1b"]
+  default     = ["ap-south-1a", "ap-south-1b"]
 }
 
 variable "ami_id" {

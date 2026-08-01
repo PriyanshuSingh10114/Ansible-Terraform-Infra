@@ -1,3 +1,19 @@
+# 0. Canonical Ubuntu 22.04 LTS AMI Data Source (Region Independent)
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"] # Canonical
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
 # 1. VPC Module
 module "vpc" {
   source               = "../../modules/vpc"
@@ -68,7 +84,7 @@ module "s3" {
 # 8. Base EC2 Instance Module (Runs App + Docker + Nginx + Prometheus + Grafana)
 module "ec2" {
   source               = "../../modules/ec2"
-  ami_id               = var.ami_id
+  ami_id               = var.ami_id != "ami-0261755bbcb8c4a84" ? var.ami_id : data.aws_ami.ubuntu.id
   instance_type        = "t3.micro"
   subnet_id            = module.subnets.public_subnet_ids[0]
   security_group_ids   = [module.security_group.ec2_security_group_id]

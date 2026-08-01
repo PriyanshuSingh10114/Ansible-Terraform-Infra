@@ -5,7 +5,7 @@ terraform {
   backend "s3" {
     bucket       = "aws-infra-remote-tfstate-bucket-unique"
     key          = "dev/terraform.tfstate"
-    region       = "us-east-1"
+    region       = "ap-south-1"
     encrypt      = true
     use_lockfile = true
   }
