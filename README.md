@@ -16,6 +16,14 @@
 
 </div>
 
+<h2 align="center">Infrastructure Architecture</h2>
+
+<p align="center">
+  <img src="automation architecture ansible terraform.png"
+       alt="AWS Terraform Ansible Infrastructure Architecture"
+       width="900">
+</p>
+
 An enterprise-ready, modular, secure, and student-cost-optimized Infrastructure as Code (IaC) and Automation platform standardized on **AWS Region `ap-south-1` (Mumbai)**. Built with **Terraform 1.10+**, **Ansible**, **Docker Compose**, **Nginx**, **Prometheus**, **Grafana**, and **AWS Services** following AWS Well-Architected Framework guidelines.
 
 ---
