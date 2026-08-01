@@ -90,38 +90,6 @@ AWS Infrastructure          Server Configuration
 | **Logging** | AWS CloudWatch Agent | System & access log aggregation |
 | **Automation** | Bash, GNU Make | One-command pipeline orchestration |
 
----
-
-## 4. System Architecture
-
-```mermaid
-graph TD
-    Client[Internet Client / Admin] -->|HTTP Port 80| Nginx[Nginx Reverse Proxy]
-    Client -->|SSH Port 22| EC2[Ubuntu 22.04 LTS EC2 Instance]
-    Client -->|HTTP Port 3001| Grafana[Grafana Dashboard]
-    Client -->|HTTP Port 9090| Prom[Prometheus UI]
-
-    subgraph AWS VPC ap-south-1 (10.0.0.0/16)
-        subgraph Public Subnet (10.0.1.0/24)
-            IGW[Internet Gateway] <--> RouteTable[Public Route Table]
-            RouteTable <--> EC2
-            
-            subgraph Container Engine (Docker Compose)
-                Nginx -->|Proxy Pass 127.0.0.1:3000| NodeApp[Node.js Express App]
-                NodeExporter[Node Exporter :9100] --> Prom
-                cAdvisor[cAdvisor :8080] --> Prom
-                NodeApp -->|/metrics| Prom
-                Prom --> Grafana
-                CWAgent[CloudWatch Agent] -->|Push Logs| CloudWatch[AWS CloudWatch Logs]
-            end
-        end
-        SG[Security Group] --> EC2
-        IAMProfile[IAM Instance Profile] --> EC2
-    end
-
-    EC2 -->|S3 API Read/Write| S3Bucket[App S3 Bucket]
-    Bootstrap[Bootstrap Remote State] -->|Native S3 Lockfile| S3State[S3 Remote State Bucket]
-```
 
 ---
 
@@ -136,7 +104,6 @@ This project is engineered specifically for **AWS Free Tier ($0.00/month)** comp
 | **1x EC2 Instance (t3.micro / t2.micro)** | Yes | 750 hours/month | **$0.00** | Fits entirely inside 12-Month AWS Free Tier |
 | **S3 Buckets (App + State)** | Yes | 5GB S3 Storage free | **$0.00** | Native S3 lockfiles (`use_lockfile = true`), no DynamoDB fees |
 | **CloudWatch Log Group** | Yes | 5GB Log Ingestion free | **$0.00** | Set to 7-day retention |
-| **ALB / NAT Gateway / RDS** | **Excluded** | Non-Free Tier | **Saved ~$70+/mo** | Excluded per student budget safety rules |
 
 ---
 
