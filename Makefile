@@ -12,7 +12,7 @@ install:
 ## bootstrap : Initialize remote state S3 bucket using Terraform bootstrap module
 bootstrap:
 	@echo "==> Bootstrapping Remote State S3 Bucket..."
-	cd bootstrap/remote-state && terraform init && terraform apply -auto-approve
+	./scripts/bootstrap.sh
 
 ## init : Initialize Terraform backend and modules for specified environment (ENV=dev|prod)
 init:

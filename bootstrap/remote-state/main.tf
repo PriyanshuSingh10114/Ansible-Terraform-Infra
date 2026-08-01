@@ -1,12 +1,41 @@
-module "remote_state_s3" {
-  source            = "../../terraform/modules/s3"
-  bucket_name       = var.state_bucket_name
-  environment       = "bootstrap"
-  enable_versioning = true
-  force_destroy     = false
+resource "aws_s3_bucket" "terraform_state" {
+  bucket = var.state_bucket_name
+
+  lifecycle {
+    prevent_destroy = true
+  }
 
   tags = {
-    Purpose   = "TerraformRemoteStateStorage"
-    ManagedBy = "TerraformBootstrap"
+    Name      = var.state_bucket_name
+    Project   = "Ansible-Terraform-Infra"
+    Purpose   = "TerraformRemoteState"
+    ManagedBy = "Terraform"
   }
+}
+
+resource "aws_s3_bucket_versioning" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }

@@ -1,9 +1,9 @@
-output "remote_state_s3_bucket_id" {
-  description = "The S3 Bucket ID for Terraform remote state"
-  value       = module.remote_state_s3.bucket_id
+output "state_bucket_name" {
+  description = "Terraform remote state S3 bucket"
+  value       = aws_s3_bucket.terraform_state.id
 }
 
-output "remote_state_s3_bucket_arn" {
-  description = "The S3 Bucket ARN for Terraform remote state"
-  value       = module.remote_state_s3.bucket_arn
+output "state_bucket_arn" {
+  description = "Terraform remote state S3 bucket ARN"
+  value       = aws_s3_bucket.terraform_state.arn
 }
