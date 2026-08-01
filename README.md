@@ -181,6 +181,14 @@ Ansible-Terraform-Infra/
 1. Linux/Ubuntu EC2 control host or WSL2 on Windows.
 2. Active AWS Account credentials (`aws configure` set to region `ap-south-1`).
 
+   <h2 align="center">Infrastructure Architecture</h2>
+
+<p align="center">
+  <img src="lifecycle.png"
+       alt="AWS Terraform Ansible Infrastructure Architecture"
+       width="900">
+</p>
+
 ### Deployment Steps
 
 ```bash
