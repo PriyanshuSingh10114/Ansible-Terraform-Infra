@@ -1,4 +1,11 @@
----
+- name: Ensure apt keyrings directory exists
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Add Docker GPG key
   ansible.builtin.get_url:
     url: https://download.docker.com/linux/ubuntu/gpg

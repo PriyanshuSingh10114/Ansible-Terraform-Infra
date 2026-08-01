@@ -1,0 +1,38 @@
+---
+- name: Create CloudWatch Agent configuration directory
+  ansible.builtin.file:
+    path: /opt/aws/amazon-cloudwatch-agent/etc
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy CloudWatch Agent configuration
+  ansible.builtin.template:
+    src: amazon-cloudwatch-agent.json.j2
+    dest: /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart cloudwatch agent
+
+- name: Create Monitoring stack target directory
+  ansible.builtin.file:
+    path: /opt/monitoring
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Deploy Monitoring configuration stack files
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../monitoring/"
+    dest: /opt/monitoring/
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+- name: Launch Monitoring Stack using Docker Compose
+  community.docker.docker_compose_v2:
+    project_src: /opt/monitoring
+    state: present

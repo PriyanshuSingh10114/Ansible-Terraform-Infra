@@ -21,9 +21,9 @@ resource "aws_security_group" "ec2" {
   }
 
   ingress {
-    description = "Application & Grafana Dashboard Ingress"
-    from_port   = 3000
-    to_port     = 3000
+    description = "Grafana Dashboard Ingress"
+    from_port   = 3001
+    to_port     = 3001
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }

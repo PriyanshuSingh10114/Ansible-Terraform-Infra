@@ -50,9 +50,10 @@ module "security_group" {
 
 # 6. IAM Role & Instance Profile Module
 module "iam" {
-  source      = "../../modules/iam"
-  environment = var.environment
-  tags        = local.common_tags
+  source         = "../../modules/iam"
+  app_bucket_arn = module.s3.bucket_arn
+  environment    = var.environment
+  tags           = local.common_tags
 }
 
 # 7. S3 Bucket Module

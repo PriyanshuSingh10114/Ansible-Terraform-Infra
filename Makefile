@@ -1,8 +1,13 @@
-.PHONY: all bootstrap init fmt validate plan apply deploy destroy clean help
+.PHONY: all install bootstrap init fmt validate plan apply deploy destroy clean help
 
 ENV ?= dev
 
 all: help
+
+## install : Install tooling dependencies (AWS CLI, Terraform, Ansible, Docker)
+install:
+	@echo "==> Running prerequisite tools installation script..."
+	./scripts/install.sh
 
 ## bootstrap : Initialize remote state S3 bucket using Terraform bootstrap module
 bootstrap:
@@ -54,6 +59,7 @@ help:
 	@echo "Usage: make [target] [ENV=dev|prod]"
 	@echo ""
 	@echo "Available targets:"
+	@echo "  install    Install prerequisite tools (AWS CLI, Terraform, Ansible, Docker)"
 	@echo "  bootstrap  Create S3 remote state bucket"
 	@echo "  init       Initialize Terraform for target environment"
 	@echo "  fmt        Format all Terraform code"

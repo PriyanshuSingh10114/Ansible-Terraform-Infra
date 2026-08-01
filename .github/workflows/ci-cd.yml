@@ -18,7 +18,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.6.0
+          terraform_version: 1.10.0
 
       - name: Check Terraform Code Formatting
         run: terraform fmt -check -recursive
@@ -60,7 +60,7 @@ jobs:
           pip install ansible community.general community.docker yamllint markdownlint-cli || pip install ansible community.general community.docker yamllint
 
       - name: Run Yaml Lint Check
-        run: yamllint -d "{extends: default, rules: {line-length: disable}}" . || true
+        run: yamllint -d "{extends: default, rules: {line-length: disable}}" .
 
       - name: Ansible Playbook Syntax Verification
         run: |

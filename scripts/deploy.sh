@@ -33,7 +33,26 @@ terraform apply -auto-approve
 
 # Step 2: Configure Server via Ansible
 ANSIBLE_DIR="$PROJECT_ROOT/ansible"
-INVENTORY="$ANSIBLE_DIR/inventories/$ENV/hosts.yml"
+INVENTORY_DIR="$ANSIBLE_DIR/inventories/$ENV"
+INVENTORY="$INVENTORY_DIR/hosts.yml"
+
+echo "[INFO] Capturing infrastructure outputs for Ansible configuration..."
+EC2_PUBLIC_IP=$(terraform output -raw ec2_public_ip 2>/dev/null || echo "")
+
+if [ -n "$EC2_PUBLIC_IP" ]; then
+  echo "[INFO] Dynamically updating Ansible inventory ($INVENTORY) with public IP: $EC2_PUBLIC_IP"
+  mkdir -p "$INVENTORY_DIR"
+  cat <<EOF > "$INVENTORY"
+---
+all:
+  children:
+    webservers:
+      hosts:
+        web-$ENV-01:
+          ansible_host: $EC2_PUBLIC_IP
+          ansible_user: ubuntu
+EOF
+fi
 
 echo "[INFO] Running Ansible Configuration Playbook..."
 cd "$ANSIBLE_DIR"

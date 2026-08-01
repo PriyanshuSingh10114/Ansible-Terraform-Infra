@@ -52,7 +52,10 @@ resource "aws_iam_policy" "s3_access" {
           "s3:PutObject",
           "s3:ListBucket"
         ]
-        Resource = [
+        Resource = var.app_bucket_arn != "*" ? [
+          var.app_bucket_arn,
+          "${var.app_bucket_arn}/*"
+        ] : [
           "arn:aws:s3:::*",
           "arn:aws:s3:::*/*"
         ]

@@ -30,7 +30,7 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = var.single_nat_gateway ? var.nat_gateway_ids[0] : var.nat_gateway_ids[count.index]
+    nat_gateway_id = var.single_nat_gateway ? (length(var.nat_gateway_ids) > 0 ? var.nat_gateway_ids[0] : null) : var.nat_gateway_ids[count.index]
   }
 
   tags = merge(

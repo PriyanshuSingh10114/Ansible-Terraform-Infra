@@ -9,7 +9,7 @@
 
 - name: Deploy application source code
   ansible.builtin.copy:
-    src: ../../../app/
+    src: "{{ playbook_dir }}/../app/"
     dest: "{{ app_directory }}"
     owner: ubuntu
     group: ubuntu
